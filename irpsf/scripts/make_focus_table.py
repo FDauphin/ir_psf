@@ -80,7 +80,7 @@ def make_focus_table_main():
             if record_dict['mjd'] not in mjd_list:
                 print(record_dict)
                 logging.info('Inserting records for {}'.format(record_dict['date']))
-                #engine.execute(FocusModel.__table__.insert(), record_dict)
+                engine.execute(FocusModel.__table__.insert(), record_dict)
 
     logging.info('Process Complete')
 

@@ -25,5 +25,5 @@ if __name__ == '__main__':
 
     if response.lower() == 'y':
         print('Resetting database.')
-        #Base.metadata.drop_all()
+        Base.metadata.drop_all()
         Base.metadata.create_all()

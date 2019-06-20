@@ -52,6 +52,24 @@ from pyql.database.ql_database_interface import IR_flt_0
 from pyql.database.ql_database_interface import IR_flt_1
 from pyql.database.ql_database_interface import session as ql_session
 
+def filter_psf_model_map(filt):
+	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits', 
+						'F125W' : 'PSFSTD_WFC3IR_F125W.fits', 
+						'F098M' : 'PSFSTD_WFC3IR_F105W.fits',
+						'F127M' : 'PSFSTD_WFC3IR_F125W.fits',
+						'F139M' : 'PSFSTD_WFC3IR_F140W.fits',
+						'F153M' : 'PSFSTD_WFC3IR_F160W.fits',
+						'F126N' : 'PSFSTD_WFC3IR_F125W.fits',
+						'F128N' : 'PSFSTD_WFC3IR_F127M.fits',
+						'F130N' : 'PSFSTD_WFC3IR_F127M.fits', 
+						'F132N' : 'PSFSTD_WFC3IR_F127M.fits',
+						'F164N' : 'PSFSTD_WFC3IR_F160W.fits',
+						'F167N' : 'PSFSTD_WFC3IR_F160W.fits',
+						'F140W' : 'PSFSTD_WFC3IR_F140W.fits',
+						'F110W' : 'PSFSTD_WFC3IR_F110W.fits',
+						'F160W' : 'PSFSTD_WFC3IR_F160W.fits'}
+
+	return filter_model_map[filt]
 
 def get_psf_records():
 	"""Return a list containing filenames that already exist as raw
@@ -146,7 +164,8 @@ def get_job_list(new_records):
 		output_loc = os.path.join(SETTINGS['output_dir']+'/'+format(filt),'')
 		exe_loc = SETTINGS['jays_code'] + '/hst1pass.e'
 		path = os.path.join(path, '')
-		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=2500 {}'.format(output_loc, exe_loc, path+rootname+'q_flt.fits'))
+		psf_model_path=SETTINGS['psf_models'] + '/{}'.format(filter_psf_model_map(filt))
+		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=10000 PSF={}, {}'.format(output_loc, exe_loc, psf_model_path, path+rootname+'q_flt.fits'))
 
 	return job_list
 

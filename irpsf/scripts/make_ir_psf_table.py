@@ -8,7 +8,7 @@ import logging
 import os 
 
 from irpsf.database.ir_psf_database_interface import engine, session, FocusModel, PSFTableMAST
-from irpsf.logging.psf_logging import setup_logging
+from irpsf.psf_logging.psf_logging import setup_logging
 from irpsf.settings.settings import *
 
 from pyql.database.ql_database_interface import Master
@@ -86,7 +86,7 @@ def get_new_files_to_ingest(filt):
 
 	return new_rootnames_public
 
-def parse_xym_file(xym_file_path):
+def parse_xym_file(xym_file_path, include_saturated_stars=False):
 	""" Reads in <filename>.stardb_xym file, returns an `astropy.table.Table`
 	with data. Each row is a psf detected in <filename>.
 
@@ -107,10 +107,14 @@ def parse_xym_file(xym_file_path):
 	"""
 
 	root = os.path.basename(xym_file_path)[0:9]
-	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N' ]
+	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N', 'sat']
 	try:
 		xym_tab = ascii.read(xym_file_path, names = colnames, guess=False, data_start=0, header_start=None, Reader=ascii.NoHeader)
 		xym_tab['rootname'] = [root] * len(xym_tab)
+		if include_saturated_stars is False:
+			logging.info('Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
+			print(xym_file_path, 'Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
+			xym_tab = xym_tab[xym_tab['sat'] == 0]
 		xym_tab.remove_columns(['mfit', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N'])
 		#xym_tab.remove_columns(['psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N' ])
 		logging.info('{} PSFs in {}'.format(len(xym_tab), root))
@@ -126,16 +130,19 @@ def get_files_metadata(rootnames):
 
 	logging.info('Getting metadata from QL database.')
 	
-	midexps, filterss, apertures, ql_dirs = [], [], [], []
+	midexps, filterss, apertures, ql_dirs, sun_angs, exptimes, fgs_locks = [], [], [], [], [], [], []
 	for root in rootnames:
-		results = ql_session.query(IR_flt_0.expstart, IR_flt_0.expend, IR_flt_0.filter, IR_flt_0.aperture, Master.dir).join(Master).filter(IR_flt_0.ql_root == root[0:8]).all()
+		results = ql_session.query(IR_flt_0.expstart, IR_flt_0.expend, IR_flt_0.filter, IR_flt_0.aperture, Master.dir, IR_flt_0.sunangle, IR_flt_0.exptime, IR_flt_0.fgslock).join(Master).filter(IR_flt_0.ql_root == root[0:8]).all()
 
 		midexps.append(np.mean([results[0][0], results[0][1]]))
 		filterss.append(results[0][2])
 		apertures.append(results[0][3])
 		ql_dirs.append(results[0][4])
+		sun_angs.append(results[0][5])
+		exptimes.append(results[0][6])
+		fgs_locks.append(results[0][7])
 
-	return (ql_dirs, midexps, filterss, apertures)
+	return (ql_dirs, midexps, filterss, apertures, exptimes, sun_angs, fgs_locks)
 
 
 def get_ra_dec_wcs(file_path, x, y):
@@ -211,19 +218,24 @@ def main_make_ir_psf_table(filt='all'):
 		new_rootnames = get_new_files_to_ingest(filt)
 
 		new_xym_file_paths = [SETTINGS['output_dir'] + '/{}/{}_flt.stardb_xym'.format(filt, root) for root in new_rootnames]
-		ql_file_dirs, midexps, filterss, apertures = get_files_metadata(new_rootnames)
+		ql_dirs, midexps, filterss, apertures, exptimes, sun_angs, fgs_locks = get_files_metadata(new_rootnames)
+
 		for i, xym_file_path in enumerate(new_xym_file_paths):
 			root = os.path.basename(xym_file_path)[0:9]
-			ql_path = glob.glob(ql_file_dirs[i] + '/{}*flt.fits'.format(root))[0]
+			ql_path = glob.glob(ql_dirs[i] + '/{}*flt.fits'.format(root))[0]
 			psf_tab = parse_xym_file(xym_file_path)
 			if psf_tab == 1:
 				continue
 			ra_psfs, dec_psfs = get_ra_dec_wcs(ql_path, psf_tab['psf_x_center'], psf_tab['psf_y_center'])
+
 			psf_tab['psf_ra'] = ra_psfs
 			psf_tab['psf_dec'] = dec_psfs
 			psf_tab['midexp'] = [midexps[i]] * len(psf_tab)
 			psf_tab['filter'] = [filterss[i]] * len(psf_tab)
 			psf_tab['aperture'] = [apertures[i]] * len(psf_tab)
+			psf_tab['exptime'] = [exptimes[i]] * len(psf_tab)
+			psf_tab['sun_ang'] = [sun_angs[i]] * len(psf_tab)
+			psf_tab['fgs_lock'] = [fgs_locks[i]] * len(psf_tab)
 
 			# #focus model values
 			date, mjd, focus = get_focus_parameters(midexps[i])
