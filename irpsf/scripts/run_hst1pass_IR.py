@@ -40,7 +40,7 @@ The program hst1pass.e outputs two files:
 """
 import glob
 from multiprocessing import Pool
-import logging 
+import logging
 import os
 import subprocess
 
@@ -53,15 +53,15 @@ from pyql.database.ql_database_interface import IR_flt_1
 from pyql.database.ql_database_interface import session as ql_session
 
 def filter_psf_model_map(filt):
-	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits', 
-						'F125W' : 'PSFSTD_WFC3IR_F125W.fits', 
+	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits',
+						'F125W' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F098M' : 'PSFSTD_WFC3IR_F105W.fits',
 						'F127M' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F139M' : 'PSFSTD_WFC3IR_F140W.fits',
 						'F153M' : 'PSFSTD_WFC3IR_F160W.fits',
 						'F126N' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F128N' : 'PSFSTD_WFC3IR_F127M.fits',
-						'F130N' : 'PSFSTD_WFC3IR_F127M.fits', 
+						'F130N' : 'PSFSTD_WFC3IR_F127M.fits',
 						'F132N' : 'PSFSTD_WFC3IR_F127M.fits',
 						'F164N' : 'PSFSTD_WFC3IR_F160W.fits',
 						'F167N' : 'PSFSTD_WFC3IR_F160W.fits',
@@ -116,10 +116,12 @@ def get_ql_records(filt):
 		(IR_flt_0.filter != 'Blank') & \
 		(IR_flt_0.filter != 'G141'))
 
-	# filter out DARKS
+	# filter out DARKS, FROM CLARE'S DIRECTORY
 	ql_query = ql_query.filter(
 		(IR_flt_0.targname != 'DARK') & \
 		(IR_flt_0.targname != 'DARK-NM'))
+		#(IR_flt_0.targname != 'TUNGSTEN') & \
+		#(IR_flt_0.imagetyp != 'FLAT') & \
 
 	# filter out GS failures
 	ql_query = ql_query.filter(
@@ -219,7 +221,7 @@ def main_run_hst1pass_IR():
 
 	#Check QL files against files already in database
 	psf_rootnames = get_psf_records()
-	
+
 	new_records = []
 	for record in ql_records:
 		if record[1] not in psf_rootnames:

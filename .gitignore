@@ -1,0 +1,6 @@
+*.pyc
+*.bash
+config.yaml
+build/
+dist/
+*egg*
