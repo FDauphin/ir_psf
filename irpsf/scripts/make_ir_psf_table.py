@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import argparse
 from astropy.io import ascii, fits
 from astropy.wcs import WCS
@@ -5,7 +7,7 @@ import datetime
 import glob
 import numpy as np
 import logging
-import os 
+import os
 
 from irpsf.database.ir_psf_database_interface import engine, session, FocusModel, PSFTableMAST
 from irpsf.psf_logging.psf_logging import setup_logging
@@ -59,7 +61,7 @@ def get_new_files_to_ingest(filt):
 	logging.info('Getting list of new files to ingest for {}'.format(filt))
 
 	#Determine which rootnames are in the filesystem
-	files_in_psf_filesystem = glob.glob(SETTINGS['output_dir'] + '/{}/*ras'.format(filt))	
+	files_in_psf_filesystem = glob.glob(SETTINGS['output_dir'] + '/{}/*ras'.format(filt))
 	rootnames_in_psf_filesystem = set([os.path.basename(x)[0:9] for x in files_in_psf_filesystem])
 
 	# #Determine which rootnames are already in the database
@@ -107,10 +109,18 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 	"""
 
 	root = os.path.basename(xym_file_path)[0:9]
-	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N', 'sat']
+	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky',
+                'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N', 'sat']
 	try:
 		xym_tab = ascii.read(xym_file_path, names = colnames, guess=False, data_start=0, header_start=None, Reader=ascii.NoHeader)
 		xym_tab['rootname'] = [root] * len(xym_tab)
+
+		#cut on qfit, g1, g2, FROM CLARE'S DIRECTORY
+		#xym_tab = xym_tab[xym_tab['qfit'] <= 0.15]
+		#xym_tab = xym_tab[xym_tab['g1'] <= 0.15]
+		#xym_tab = xym_tab[xym_tab['g2'] <= 0.15]
+
+
 		if include_saturated_stars is False:
 			logging.info('Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
 			print(xym_file_path, 'Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
@@ -120,7 +130,7 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 		logging.info('{} PSFs in {}'.format(len(xym_tab), root))
 	except ValueError:
 		logging.info('No PSFs in {}'.format(root))
-		return 1 
+		return 1
 
 	#table has columns : ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky']
 	return xym_tab
@@ -129,10 +139,12 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 def get_files_metadata(rootnames):
 
 	logging.info('Getting metadata from QL database.')
-	
+
 	midexps, filterss, apertures, ql_dirs, sun_angs, exptimes, fgs_locks = [], [], [], [], [], [], []
 	for root in rootnames:
-		results = ql_session.query(IR_flt_0.expstart, IR_flt_0.expend, IR_flt_0.filter, IR_flt_0.aperture, Master.dir, IR_flt_0.sunangle, IR_flt_0.exptime, IR_flt_0.fgslock).join(Master).filter(IR_flt_0.ql_root == root[0:8]).all()
+		results = ql_session.query(IR_flt_0.expstart, IR_flt_0.expend, IR_flt_0.filter,
+                                    IR_flt_0.aperture, Master.dir, IR_flt_0.sunangle,
+                                    IR_flt_0.exptime, IR_flt_0.fgslock).join(Master).filter(IR_flt_0.ql_root == root[0:8]).all()
 
 		midexps.append(np.mean([results[0][0], results[0][1]]))
 		filterss.append(results[0][2])
@@ -164,7 +176,7 @@ def get_focus_parameters(midexp):
 
     Parameters
     ----------
-    rootnames: list 
+    rootnames: list
     	list of 9 character file rootnames
     midexp : float
         The time of the middle of the observation, in MJD.
@@ -180,7 +192,7 @@ def get_focus_parameters(midexp):
     # Note that a separate session and engine must be created and closed
     # as to allow many parallel connections
     six_minutes = 0.00416667  # six minutes in units of days
-  
+
     results = session.query(FocusModel.mjd, FocusModel.date, FocusModel.focus)\
         .filter(FocusModel.mjd >= float(midexp - six_minutes))\
         .filter(FocusModel.mjd <= float(midexp + six_minutes)).all()
@@ -214,7 +226,7 @@ def main_make_ir_psf_table(filt='all'):
 	for filt in filter_list:
 		duplicate_entries = 0
 		logging.info('Starting Processing for {}'.format(filt))
-		#Get list of new rootnames to ingest 
+		#Get list of new rootnames to ingest
 		new_rootnames = get_new_files_to_ingest(filt)
 
 		new_xym_file_paths = [SETTINGS['output_dir'] + '/{}/{}_flt.stardb_xym'.format(filt, root) for root in new_rootnames]
@@ -245,7 +257,7 @@ def main_make_ir_psf_table(filt='all'):
 
 			#insert each psf into database
 			for i, roww in enumerate(psf_tab):
-				#Make row into dictionary 
+				#Make row into dictionary
 				psf_record = dict()
 				dict_keys = psf_tab.colnames
 				for key in dict_keys:
@@ -256,8 +268,8 @@ def main_make_ir_psf_table(filt='all'):
 
 				engine.execute(PSFTableMAST.__table__.insert(), psf_record)
 			logging.info('Inserted {} psf records for {} into database'.format(len(psf_tab), root))
-			
-		
+
+
 		# try:
 		# 	engine.execute(PSFTableMAST.__table__.insert(), psf_record)
 		# 	logging.info('Inserted {} psf records for {} into database'.format(len(psf_tab), root))
@@ -274,4 +286,3 @@ if __name__ == '__main__':
 
 	args = parse_args()
 	main_make_ir_psf_table(args.filter)
-	

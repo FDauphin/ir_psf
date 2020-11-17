@@ -25,8 +25,7 @@ def get_settings():
     Gets the setting information that we don't want burned into the
     repo.
     """
-    config_file_path = os.path.dirname(os.path.abspath(__file__)) + '/config.yaml'
-    with open(config_file_path, 'r') as f:
+    with open('config.yaml', 'r') as f:
         data = yaml.load(f)
     return data
 

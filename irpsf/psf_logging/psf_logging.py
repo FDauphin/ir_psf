@@ -2,7 +2,7 @@
 
 This module uses the Python logging library to configure a logger for
 logging information in various scripts.  The resulting log file is
-written to <output_dir>/<module_name>/<module_name>_<YYYY-MM-DD-HH-MM>.log
+written to <log_dir>/<module_name>/<module_name>_<YYYY-MM-DD-HH-MM>.log
 
 Authors
 -------
@@ -25,10 +25,10 @@ from irpsf.settings.settings import *
 
 def setup_logging(module):
     """Set up the logging."""
-    if not os.path.isdir(os.path.join(SETTINGS['output_dir'], 'psf_logs', module)):
-    	print('Making directory {}'.format(os.path.join(SETTINGS['output_dir'], 'psf_logs', module)))
-    	os.makedirs(os.path.join(SETTINGS['output_dir'], 'psf_logs', module))
-    log_file = os.path.join(SETTINGS['output_dir'], 'psf_logs', module,
+    if not os.path.isdir(os.path.join(SETTINGS['log_dir'], 'psf_logs', module)):
+    	print('Making directory {}'.format(os.path.join(SETTINGS['log_dir'], 'psf_logs', module)))
+    	os.makedirs(os.path.join(SETTINGS['log_dir'], 'psf_logs', module))
+    log_file = os.path.join(SETTINGS['log_dir'], 'psf_logs', module,
         module + '_' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M') + '.log')
     logging.basicConfig(filename=log_file,
                         format='%(asctime)s %(levelname)s: %(message)s',
