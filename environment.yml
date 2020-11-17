@@ -1,4 +1,4 @@
-name: psf_3 #named psf_3 because it uses python 3
+name: psf_3
 channels:
 - http://ssb.stsci.edu/astroconda
 - defaults
