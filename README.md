@@ -1,7 +1,7 @@
 WFC3 IR PSF Project
 ---------------------
 
-This repository contains the software to build and analyze the HST WFC3 PSF database. This pipeline is used to find, catalog, and analyze WFC3 IR PSF's.  Below are instructions on how to install the `irpsf` package and its dependencies as well as how to update the PSF database and deliver appropriate information to MAST. The timescale of the installation and procedure are around a day and a week, respectively.  This may increase or decrease due to computer skills, technical complications, and/or data size. This repository compliments the UVIS pipeline, available here: https://github.com/spacetelescope/psf. **Last edit by Frederick Dauphin 11/17/2020.**
+This repository contains the software to build and analyze the HST WFC3 PSF database. This pipeline is used to find, catalog, and analyze WFC3 IR PSF's.  Below are instructions on how to install the `irpsf` package and its dependencies as well as how to update the PSF database and deliver appropriate information to MAST. The timescale of the installation and procedure are around a day and a week, respectively.  This may increase or decrease due to computer skills, technical complications, and/or data size. This repository compliments the UVIS pipeline, available here: https://github.com/spacetelescope/psf. **Last edit by Frederick Dauphin 11/20/2020.**
 
 Installation
 ----------------
@@ -14,7 +14,7 @@ Installation
 6. If necessary, install the `pyql` package by creating a local clone (available here https://github.com/spacetelescope/pyql) and running `python setup.py develop` or `python setup.py install` (`develop` is recommended).
 7. Install the `irpsf` package by running `python setup.py develop` or `python setup.py install` (`develop` is recommended).
 
-**Note:** Appropriate scripts with the prefix `agpy_` contain Python3 compatible functions from the `agpy` package.  If the `agpy` package is updated in the future to support past Python2 (which is unlikely), consider installing and implementing the package: `pip install agpy`.
+**Note:** Appropriate scripts with the prefix `agpy_` contain Python3 compatible functions from the `agpy` package (which is a part of `pip`). If Python3 is not supported anymore, update the syntax for the `agpy_` scripts as needed.
 
 Procedure to update and deliver the `ir_psf_mast` table to MAST
 -------------------------------------------------------------
@@ -26,7 +26,7 @@ Procedure to update and deliver the `ir_psf_mast` table to MAST
 
 **(4)** Activate the `psf` `conda` environment: `source activate psf` (see `Installation` for further details)
 
-**(5)** Create a yaml file in `scripts/` named `config.yaml`. In the file, copy and paste the following text:
+**(5)** Create a yaml file in `irpsf/scripts/` named `config.yaml`. In the file, copy and paste the following text:
 
 ```yaml
 cores: 20
@@ -81,7 +81,7 @@ Note that some filters may take a while to complete, especially those that are u
 
 **(7)** Execute the `make_focus_model_table.py` script: `python make_focus_model_table.py`.  This will read in the focus model text files, store the information in the `focus_model` table of the mysql database, and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/make_focus_model_table/`. Note since the tables are updated in a mysql database, you can sign into mysql to investigate the contents of each table, although it is not necessary: `mysql -u <username> -p` (enter appropriate username and password). `documents/mysql_cheat_sheet.pdf` contains useful commands if needed.
 
-**(8)** Execute the `make_ir_psf_table.py` script over all filters: `bash bash_scripts/run_all_ir_psf_table.bash`.  The bash script will run all the filters separately on different screens named after each filter rather than sequentially as stated earlier.  This will add new records to the `ir_psf` table and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/make_ir_psf_table/`.
+**(8)** Execute the `make_ir_psf_table.py` script over all filters: `bash bash_scripts/run_all_ir_psf_table.bash`.  The bash script will run all the filters separately on different screens named after each filter rather than sequentially as stated earlier.  This will add new records to the `ir_psf` table and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/make_ir_psf_table/`. Note that this takes several hours to run.
 
 **(9) this is a guess, ask Clare** Perform a database dump on the `ir_psf_mast` table using the following command: `mysqldump -u <username> -p --tab=/internal/data1/psf/ir --fields-terminated-by=, --lines-terminated-by='\n' ir_psf ir_psf_mast`  (enter appropriate username and password). Double check that you have an existing mysql account or else the .txt file will not be exported from mysql.
 
