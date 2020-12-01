@@ -116,12 +116,12 @@ def get_ql_records(filt):
 		(IR_flt_0.filter != 'Blank') & \
 		(IR_flt_0.filter != 'G141'))
 
-	# filter out DARKS, FROM CLARE'S DIRECTORY
+	# filter out DARKS/FLATS, last two can be commented out if needed
 	ql_query = ql_query.filter(
 		(IR_flt_0.targname != 'DARK') & \
-		(IR_flt_0.targname != 'DARK-NM'))
-		#(IR_flt_0.targname != 'TUNGSTEN') & \
-		#(IR_flt_0.imagetyp != 'FLAT') & \
+		(IR_flt_0.targname != 'DARK-NM') & \
+		(IR_flt_0.targname != 'TUNGSTEN') & \
+		(IR_flt_0.imagetyp != 'FLAT'))
 
 	# filter out GS failures
 	ql_query = ql_query.filter(
@@ -147,7 +147,7 @@ def get_job_list(new_records):
 
 	Each item in the job_list will be a call to hst1pass.e with
 	the appropriate parameters to process an image, beginning with a command
-	to cd into the correct output directory.
+	to cd into the correct output directory. (FMIN was 10000)
 
 	Parameters
 	----------
@@ -167,7 +167,7 @@ def get_job_list(new_records):
 		exe_loc = SETTINGS['jays_code'] + '/hst1pass.e'
 		path = os.path.join(path, '')
 		psf_model_path=SETTINGS['psf_models'] + '/{}'.format(filter_psf_model_map(filt))
-		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=10000 PSF={}, {}'.format(output_loc, exe_loc, psf_model_path, path+rootname+'q_flt.fits'))
+		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=2500 PSF={}, {}'.format(output_loc, exe_loc, psf_model_path, path+rootname+'q_flt.fits'))
 
 	return job_list
 

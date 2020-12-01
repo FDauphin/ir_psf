@@ -25,6 +25,7 @@ import os
 from irpsf.database.ir_psf_database_interface import engine, session, FocusModel
 from irpsf.psf_logging.psf_logging import setup_logging
 from irpsf.settings.settings import *
+from sqlalchemy.exc import IntegrityError
 
 
 def get_record_dict(record):
@@ -49,7 +50,7 @@ def get_record_dict(record):
     record_dict['date'] = datetime.datetime.strptime(date_string, '%b %d %Y %H:%M:%S')
     record_dict['focus'] = record[5]
 
-    print(record_dict)
+    #print(record_dict)
 
     return record_dict
 
@@ -78,9 +79,12 @@ def make_focus_table_main():
             record = record.split()
             record_dict = get_record_dict(record)
             if record_dict['mjd'] not in mjd_list:
-                print(record_dict)
+                #print(record_dict)
                 logging.info('Inserting records for {}'.format(record_dict['date']))
-                engine.execute(FocusModel.__table__.insert(), record_dict)
+                try:
+                    engine.execute(FocusModel.__table__.insert(), record_dict)
+                except IntegrityError:
+                    print ('{} already in table'.format(record_dict['date']))
 
     logging.info('Process Complete')
 

@@ -60,8 +60,8 @@ def make_mast_deliverable(old_table, new_table):
     # Build the new deliverable table
     print('Building delivery table')
     deliverable_table = new_table.replace('.txt', '_deliver.csv')
-    header = 'id,rootname,filter,aperture,psf_x_center,psf_y_center,chip,'
-    header += 'psf_flux,sky,qfit,pixc,midexp,mjd,date,focus\n'
+    header = 'id,rootname,filter,aperture,psf_x_center,psf_y_center,psf_ra,'
+    header += 'psf_dec,psf_flux,sky,qfit,pixc,midexp,mjd,date,focus\n'
     delivery_table = set(new_tab) - set(old_tab)
     nrows = len(delivery_table)
     with open(deliverable_table, 'w') as f:
