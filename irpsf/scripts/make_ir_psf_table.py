@@ -33,7 +33,7 @@ from pyql.database.ql_database_interface import session as ql_session
 | midexp       | decimal(12,5) | NO   | MUL | NULL    |                |
 | mjd          | decimal(12,5) | YES  | MUL | NULL    |                |
 | date         | datetime      | YES  | MUL | NULL    |                |
-| focus		   | float         | YES  |     | NULL    |                |
+| focus	       | float         | YES  |     | NULL    |                |
 """
 def parse_args():
     """Parse the command line arguments.
@@ -109,24 +109,25 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 	"""
 
 	root = os.path.basename(xym_file_path)[0:9]
-	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky',
-                'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N', 'sat']
+	colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'N', 'sat', 'g1', 'g2']
+    #colnames = ['psf_x_center' ,'psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky',
+    #            'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N', 'sat']
 	try:
 		xym_tab = ascii.read(xym_file_path, names = colnames, guess=False, data_start=0, header_start=None, Reader=ascii.NoHeader)
 		xym_tab['rootname'] = [root] * len(xym_tab)
 
 		#cut on qfit, g1, g2, FROM CLARE'S DIRECTORY
-		#xym_tab = xym_tab[xym_tab['qfit'] <= 0.15]
-		#xym_tab = xym_tab[xym_tab['g1'] <= 0.15]
-		#xym_tab = xym_tab[xym_tab['g2'] <= 0.15]
+		xym_tab = xym_tab[xym_tab['qfit'] <= 0.15]
+		xym_tab = xym_tab[xym_tab['g1'] <= 0.15]
+		xym_tab = xym_tab[xym_tab['g2'] <= 0.15]
 
 
 		if include_saturated_stars is False:
 			logging.info('Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
-			print(xym_file_path, 'Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
+			#print(xym_file_path, 'Omiting {} saturated stars from table.'.format(len(xym_tab[xym_tab['sat'] == 1])))
 			xym_tab = xym_tab[xym_tab['sat'] == 0]
-		xym_tab.remove_columns(['mfit', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N'])
-		#xym_tab.remove_columns(['psf_y_center', 'mfit', 'qfit', 'psf_flux', 'sky', 'pixc', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N' ])
+		xym_tab.remove_columns(['mfit', 'cexp', 'N', 'g1', 'g2'])
+        	#xym_tab.remove_columns(['mfit', 'cexp', 'aobs', 'aexp', 'bobs', 'bexp', 'N'])
 		logging.info('{} PSFs in {}'.format(len(xym_tab), root))
 	except ValueError:
 		logging.info('No PSFs in {}'.format(root))
@@ -255,7 +256,7 @@ def main_make_ir_psf_table(filt='all'):
 			psf_tab['mjd'] = [mjd] * len(psf_tab)
 			psf_tab['focus'] = [focus] * len(psf_tab)
 
-			#insert each psf into database
+            #insert each psf into database
 			for i, roww in enumerate(psf_tab):
 				#Make row into dictionary
 				psf_record = dict()
@@ -285,4 +286,5 @@ if __name__ == '__main__':
 	setup_logging(module)
 
 	args = parse_args()
+	print (args.filter)
 	main_make_ir_psf_table(args.filter)
