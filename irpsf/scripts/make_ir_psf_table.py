@@ -97,15 +97,14 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 	2) yfit (y position)
 	3) mfit (instrumental magnitude)
 	4) qfit (quality of fit, the absolute fractional residual, 0 = perfect fit)
-	5) zfit  --- the fitted flux; 10**(-mfit/2.5)
-	6) sfit (the fitted sky)
+	5) zfit  --- the fitted flux; 10**(-mfit/2.5) aka psf_flux
+	6) sfit (the fitted sky) aka sky
 	7) cobs (the central pixel value) aka pixc
 	8) cexp (the fraction of light expected in the central pixel)
-	9) aobs (the flux in the "a" pixels)
-	10) aexp (the fraction of light expected in the "a" pixels)
-	11) bobs (the flux in the "b" pixels)
-	12) bexp (the fraction of light expected in the "b" pixels)
-	13) N + star number
+	9) N + star number
+	10) sat (saturation)
+	11) g1
+	12) g2
 	"""
 
 	root = os.path.basename(xym_file_path)[0:9]
