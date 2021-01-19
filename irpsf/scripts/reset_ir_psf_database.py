@@ -12,6 +12,7 @@ Use
 
     This script is intended to run via command line as such:
         >>> python reset_ir_psf_database.py
+        Test
 """
 
 from irpsf.database.ir_psf_database_interface import Base, engine, FocusModel, PSFTableMAST
