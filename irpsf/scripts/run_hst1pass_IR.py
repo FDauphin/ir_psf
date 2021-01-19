@@ -166,6 +166,7 @@ def get_job_list(new_records):
 		output_loc = os.path.join(SETTINGS['output_dir']+'/'+format(filt),'')
 		exe_loc = SETTINGS['jays_code'] + '/hst1pass.e'
 		path = os.path.join(path, '')
+#		print (path, rootname)
 		psf_model_path=SETTINGS['psf_models'] + '/{}'.format(filter_psf_model_map(filt))
 		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=10000 PSF={}, {}'.format(output_loc, exe_loc, psf_model_path, path+rootname+'q_flt.fits'))
 
