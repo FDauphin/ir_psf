@@ -8,6 +8,7 @@ import glob
 import numpy as np
 import logging
 import os
+from astropy.time import Time
 
 from irpsf.database.ir_psf_database_interface import engine, session, FocusModel, PSFTableMAST
 from irpsf.psf_logging.psf_logging import setup_logging
@@ -18,6 +19,8 @@ from pyql.database.ql_database_interface import IR_flt_0
 from pyql.database.ql_database_interface import IR_flt_1
 from pyql.database.ql_database_interface import session as ql_session
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 """
 | id           | int(11)       | NO   | PRI | NULL    | auto_increment |
@@ -197,22 +200,48 @@ def get_focus_parameters(midexp):
         .filter(FocusModel.mjd >= float(midexp - six_minutes))\
         .filter(FocusModel.mjd <= float(midexp + six_minutes)).all()
 
-    if len(results) > 0:
-        mjds = [item[0] for item in results]
-        dates = [item[1] for item in results]
-        focus_values = [item[2] for item in results]
+    ################old method################
+    #if len(results) > 0:
+    #    mjds = [item[0] for item in results]
+    #    dates = [item[1] for item in results]
+    #    focus_values = [item[2] for item in results]
 
         # Find the focus closest in time to the observation
-        delta_times = [abs(float(midexp) - float(mjd)) for mjd in mjds]
-        index = delta_times.index(min(delta_times))
-        mjd = float(mjds[index])
-        date = dates[index]
-        focus = focus_values[index]
+    #    delta_times = [abs(float(midexp) - float(mjd)) for mjd in mjds]
+    #    index = delta_times.index(min(delta_times))
+    #    mjd = float(mjds[index])
+    #    date = dates[index]
+    #    focus = focus_values[index]
 
     # If there are no surrounding focus measurements, then set the focus
     # measurements to NULL
-    else:
+    #else:
+    #    date, mjd, focus = None, None, None
+
+    ################new method################
+    # If there are no surrounding focus measurements, then set the focus
+    # measurements to NULL
+    if len(results) == 0:
         date, mjd, focus = None, None, None
+
+    elif len(results) == 1:
+    # If there is only one surrounding focus measurement, then set the focus
+    # measurement to that value
+        mjd = float(midexp)
+        date = Time(mjd, format='mjd').datetime
+        focus = results[0][2]
+
+    else:
+    #If there are two or more surrounding focus measurements, then
+    #linearly interpolate the focus with respect to midexp
+        mjds = [item[0] for item in results]
+        focus_values = [item[2] for item in results]
+        mjds = np.array(mjds).astype(float)
+        focus_values = np.array(focus_values).astype(float)
+
+        mjd = float(midexp)
+        date = Time(mjd, format='mjd').datetime
+        focus = float(np.interp(mjd, mjds, focus_values))
 
     return (date, mjd, focus)
 
@@ -266,7 +295,10 @@ def main_make_ir_psf_table(filt='all'):
 					else:
 						psf_record[key] = None
 
-				engine.execute(PSFTableMAST.__table__.insert(), psf_record)
+				try:
+					engine.execute(PSFTableMAST.__table__.insert(), psf_record)
+				except:
+					pass
 			logging.info('Inserted {} psf records for {} into database'.format(len(psf_tab), root))
 
 
