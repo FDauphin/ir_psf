@@ -40,7 +40,7 @@ The program hst1pass.e outputs two files:
 """
 import glob
 from multiprocessing import Pool
-import logging 
+import logging
 import os
 import subprocess
 
@@ -53,15 +53,15 @@ from pyql.database.ql_database_interface import IR_flt_1
 from pyql.database.ql_database_interface import session as ql_session
 
 def filter_psf_model_map(filt):
-	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits', 
-						'F125W' : 'PSFSTD_WFC3IR_F125W.fits', 
+	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits',
+						'F125W' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F098M' : 'PSFSTD_WFC3IR_F105W.fits',
 						'F127M' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F139M' : 'PSFSTD_WFC3IR_F140W.fits',
 						'F153M' : 'PSFSTD_WFC3IR_F160W.fits',
 						'F126N' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F128N' : 'PSFSTD_WFC3IR_F127M.fits',
-						'F130N' : 'PSFSTD_WFC3IR_F127M.fits', 
+						'F130N' : 'PSFSTD_WFC3IR_F127M.fits',
 						'F132N' : 'PSFSTD_WFC3IR_F127M.fits',
 						'F164N' : 'PSFSTD_WFC3IR_F160W.fits',
 						'F167N' : 'PSFSTD_WFC3IR_F160W.fits',
@@ -116,10 +116,12 @@ def get_ql_records(filt):
 		(IR_flt_0.filter != 'Blank') & \
 		(IR_flt_0.filter != 'G141'))
 
-	# filter out DARKS
+	# filter out DARKS/FLATS, last two can be commented out if needed
 	ql_query = ql_query.filter(
 		(IR_flt_0.targname != 'DARK') & \
-		(IR_flt_0.targname != 'DARK-NM'))
+		(IR_flt_0.targname != 'DARK-NM') & \
+		(IR_flt_0.targname != 'TUNGSTEN') & \
+		(IR_flt_0.imagetyp != 'FLAT'))
 
 	# filter out GS failures
 	ql_query = ql_query.filter(
@@ -145,7 +147,7 @@ def get_job_list(new_records):
 
 	Each item in the job_list will be a call to hst1pass.e with
 	the appropriate parameters to process an image, beginning with a command
-	to cd into the correct output directory.
+	to cd into the correct output directory. (FMIN could be lowered to 2500)
 
 	Parameters
 	----------
@@ -164,6 +166,7 @@ def get_job_list(new_records):
 		output_loc = os.path.join(SETTINGS['output_dir']+'/'+format(filt),'')
 		exe_loc = SETTINGS['jays_code'] + '/hst1pass.e'
 		path = os.path.join(path, '')
+#		print (path, rootname)
 		psf_model_path=SETTINGS['psf_models'] + '/{}'.format(filter_psf_model_map(filt))
 		job_list.append('cd {}; {} STARDB+ HMIN=7 FMIN=10000 PSF={}, {}'.format(output_loc, exe_loc, psf_model_path, path+rootname+'q_flt.fits'))
 
@@ -219,7 +222,7 @@ def main_run_hst1pass_IR():
 
 	#Check QL files against files already in database
 	psf_rootnames = get_psf_records()
-	
+
 	new_records = []
 	for record in ql_records:
 		if record[1] not in psf_rootnames:

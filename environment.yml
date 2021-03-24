@@ -1,0 +1,17 @@
+name: psf
+channels:
+- http://ssb.stsci.edu/astroconda
+- defaults
+dependencies:
+- matplotlib
+- numpy
+- pip
+- python
+- pyyaml
+- scipy
+- sqlalchemy
+- pip:
+  - astropy
+  - bokeh
+  - montage-wrapper
+  - pymysql

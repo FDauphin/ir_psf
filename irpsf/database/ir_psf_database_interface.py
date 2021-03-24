@@ -117,11 +117,10 @@ class PSFTableMAST(Base):
     __table_args__ = (UniqueConstraint('rootname', 'psf_x_center',
                       'psf_y_center', name='psf_mast_uniqueness_constraint'),)
 
+
 class FocusModel(Base):
     """ORM for the table storing individual focus measurement information"""
 
-    __tablename__ = 'focus_model'
-    """ORM for the table storing focus model information."""
     __tablename__ = 'focus_model'
     id = Column(Integer(), primary_key=True)
     mjd = Column(DECIMAL(12, 5), index=True, nullable=False)
@@ -130,8 +129,7 @@ class FocusModel(Base):
     __table_args__ = (UniqueConstraint('mjd',
                       name='focus_model_uniqueness_constraint'),)
 
-    
+
 if __name__ == '__main__':
 
     Base.metadata.create_all()
-
