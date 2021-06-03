@@ -80,7 +80,7 @@ def loadConnection(connection_string):
     base : base object
         Provides a base class for declarative class definitions.
     engine : engine object
-        Prov
+        Provides a low-level API to communicate with the database.
     """
 
     engine = create_engine(connection_string, echo=False, pool_timeout=259200)
