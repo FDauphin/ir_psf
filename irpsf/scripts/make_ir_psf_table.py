@@ -355,7 +355,7 @@ def main_make_ir_psf_table(filt='all'):
 
 			# #focus model values
 			mjd, date, focus = get_focus_parameters(midexps[i])
-            psf_tab['mjd'] = [mjd] * len(psf_tab)
+			psf_tab['mjd'] = [mjd] * len(psf_tab)
 			psf_tab['date'] = [date] * len(psf_tab)
 			psf_tab['focus'] = [focus] * len(psf_tab)
 
