@@ -1,18 +1,19 @@
 #! /usr/bin/env python
 
-"""Create a CSV file contaning new psf_mast table records to be
+"""Create a CSV file contaning new ir_psf_mast table records to be
 delivered to MAST.
 
 This module reads in two files: (1) the most recently delivered
-psf_mast database dump text file and (2) a new psf_mast database
+ir_psf_mast database dump text file and (2) a new ir_psf_mast database
 dump text file.  The module will then determine which records exist
 in the new text file but don't exist in the old text file and write
-the new records to a separate psf_mast_YYYY_MM_DD_deliver.txt text
+the new records to a separate ir_psf_mast_YYYY_MM_DD_deliver.txt text
 file.  This file can then be delivered to the MAST PSF group.
 
 Authors
 -------
     Matthew Bourque
+    Frederick Dauphin 2021
 
 Use
 ---
@@ -22,9 +23,9 @@ Use
 
     Required arguments:
     old_table - Path to text file containing the most-recently
-                delivered psf_mast table.
+                delivered ir_psf_mast table.
     new_table - Path to text file containing the most recent
-                psf_mast table database dump.
+                ir_psf_mast table database dump.
 """
 
 from __future__ import print_function
@@ -32,16 +33,17 @@ import argparse
 
 
 def make_mast_deliverable(old_table, new_table):
-    """The main function of the make_mast_deliverable module.  See
-    module docstrings for further information.
+    """The main function of the make_mast_deliverable module.
+
+    See module docstrings for further information.
 
     Parameters
     ----------
     old_table: str
         The path to the file that holds the most recent delivered
-        psf_mast table.
+        ir_psf_mast table.
     new_table: str
-        The path to the file that holds the most recent psf_mast
+        The path to the file that holds the most recent ir_psf_mast
         table database dump.
     """
 
@@ -79,16 +81,16 @@ def parse_args():
     Returns
     -------
     args : obj
-        An agparse object containing all of the added arguments
+        An agparse object containing all of the added arguments.
     """
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'old_table',
-        help='The path to the most recent delivered psf_mast table.')
+        help='The path to the most recent delivered ir_psf_mast table.')
     parser.add_argument(
         'new_table',
-        help='The path to the most recent dump of the psf_mast table.')
+        help='The path to the most recent dump of the ir_psf_mast table.')
     args = parser.parse_args()
 
     return args

@@ -30,12 +30,14 @@ from sqlalchemy.exc import IntegrityError
 
 def get_record_dict(record):
     """Return a dictionary containing the focus measurements.
+
     Parameters
     ----------
     record : list
         A list containing the focus measurements for the given record
         Each element in the list must map to a column in the
         focus_model table.
+
     Returns
     -------
     record_dict : dict
@@ -57,8 +59,9 @@ def get_record_dict(record):
 
 def make_focus_table_main():
     """The main controller for the make_focus_model_table module.
+    
     The focus information is stored in the
-    /grp/hst/wfc3h/bourque/psf/focus-models/by_years/Focus<year> files.
+    /grp/hst/wfc3p/psf/main/focus-models/Focus<year> files.
     """
 
     logging.info('Process Starting')

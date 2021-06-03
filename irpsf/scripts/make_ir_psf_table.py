@@ -44,8 +44,9 @@ def parse_args():
     Returns
     -------
     args : obj
-        An agparse object containing all of the added arguments
+        An agparse object containing all of the added arguments.
     """
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-filter',
@@ -57,9 +58,20 @@ def parse_args():
     return args
 
 def get_new_files_to_ingest(filt):
-	"""For a given filter, checks files in filesystem against files already in database. Returns
-	   a list of rootnames of files in filesystem but NOT in database, i.e. new files, to process.
-	   Next, checks if files are out of the proprietary period."""
+	"""For a given filter, checks files in filesystem against files already in database.
+
+    Returns a list of rootnames of files in filesystem but NOT in database, i.e. new files, to process. Next, checks if files are out of the proprietary period.
+
+    Parameters
+    ----------
+    filt : str
+        The filter being processed.
+
+    Returns
+    -------
+    new_rootnames_public : list
+        The new rootnames to be processed.
+    """
 
 	logging.info('Getting list of new files to ingest for {}'.format(filt))
 
@@ -108,6 +120,22 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 	10) sat (saturation)
 	11) g1
 	12) g2
+
+    Parameters
+    ----------
+    xym_file_path : str
+        Path for the .stardb_xym file containing the image PSF metadata.
+
+    include_saturated_stars : bool, default=False
+        Include saturated stars in the catalog or not.
+
+    Returns
+    -------
+    xym_tab : astropy.io.ascii Table
+        Table containing the image metadata - psf_x_center, psf_y_center, qfit,
+        psf_flux, sky, pixc, N, and sat - requiring all stars to have a qfit,
+        g1, and g2 less than 0.15. mfit, cexp, N, g1, and g2 are removed.
+        If xym_tab is 1, then the Table is empty and no PSFs were in the image.
 	"""
 
 	root = os.path.basename(xym_file_path)[0:9]
@@ -140,6 +168,19 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 
 
 def get_files_metadata(rootnames):
+    """Retrieve metadata for a rootname from QL.
+
+    Parameters
+    ----------
+    rootnames : list
+        A list of the new rootnames to be processed.
+
+    Returns
+    -------
+    metadata : tuple
+        The complimentary metadata - ql directory, mid exposure times, filter,
+        aperture, exposure time, sun angle, and FGS lock.
+    """
 
 	logging.info('Getting metadata from QL database.')
 
@@ -157,10 +198,33 @@ def get_files_metadata(rootnames):
 		exptimes.append(results[0][6])
 		fgs_locks.append(results[0][7])
 
-	return (ql_dirs, midexps, filterss, apertures, exptimes, sun_angs, fgs_locks)
+	metadata = (ql_dirs, midexps, filterss, apertures, exptimes, sun_angs, fgs_locks)
+
+    return metadata
 
 
 def get_ra_dec_wcs(file_path, x, y):
+    """Calculate the right ascension and declination from an image.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to the image.
+
+    x : float
+        The x coordinate of the PSF.
+
+    y : float
+        The y coordinate of the PSF.
+
+    Returns
+    -------
+    ra : float
+        Right ascension.
+
+    dec : float
+        Declination.
+    """
 
 	hdu = fits.open(file_path)
 	wcss = WCS(hdu[1].header, hdu)
@@ -179,16 +243,20 @@ def get_focus_parameters(midexp):
 
     Parameters
     ----------
-    rootnames: list
-    	list of 9 character file rootnames
     midexp : float
         The time of the middle of the observation, in MJD.
 
     Returns
     -------
-    psf_dict : dict
-        The dictionary that contains various psf parameters, now with
-        focus information.
+    mjd : float
+        The time of the middle of the observation, in MJD (same as midexp).
+
+    date : datetime
+        MJD, in datetime (yyyy-mm-dd hh:mm:ss).
+
+    focus : float
+        The estimated focus of the image in microns. If no estimation can be
+        made, None is returned.
     """
 
     # Find all of the focus values within six minutes
@@ -243,10 +311,17 @@ def get_focus_parameters(midexp):
         date = Time(mjd, format='mjd').datetime
         focus = float(np.interp(mjd, mjds, focus_values))
 
-    return (date, mjd, focus)
+    return (mjd, date, focus)
 
 
 def main_make_ir_psf_table(filt='all'):
+    """The main controller for the make_ir_psf_table module.
+
+    Parameters
+    ----------
+    filt : str, default=all
+        The filter being processed. If all, process all filters.
+    """
 
 	filter_list = [filt]
 	if filt == 'all':
@@ -279,9 +354,9 @@ def main_make_ir_psf_table(filt='all'):
 			psf_tab['fgs_lock'] = [fgs_locks[i]] * len(psf_tab)
 
 			# #focus model values
-			date, mjd, focus = get_focus_parameters(midexps[i])
+			mjd, date, focus = get_focus_parameters(midexps[i])
+            psf_tab['mjd'] = [mjd] * len(psf_tab)
 			psf_tab['date'] = [date] * len(psf_tab)
-			psf_tab['mjd'] = [mjd] * len(psf_tab)
 			psf_tab['focus'] = [focus] * len(psf_tab)
 
             #insert each psf into database

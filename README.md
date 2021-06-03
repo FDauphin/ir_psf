@@ -1,7 +1,7 @@
 WFC3 IR PSF Project
 ---------------------
 
-This repository contains the software to build and analyze the HST WFC3 PSF database. This pipeline is used to find, catalog, and analyze WFC3 IR PSF's.  Below are instructions on how to install the `irpsf` package and its dependencies as well as how to update the PSF database and deliver appropriate information to MAST. The timescale of the installation and procedure are around a day and a week, respectively.  This may increase or decrease due to computer skills, technical complications, and/or data size. This repository compliments the UVIS pipeline, available here: https://github.com/spacetelescope/psf. **Last edit by Frederick Dauphin 12/01/2020.**
+This repository contains the software to build and analyze the HST WFC3 PSF database. This pipeline is used to find, catalog, and analyze WFC3 IR PSF's.  Below are instructions on how to install the `irpsf` package and its dependencies as well as how to update the PSF database and deliver appropriate information to MAST. The timescale of the installation and procedure are around a day and a week, respectively.  This may increase or decrease due to computer skills, technical complications, and/or data size. This repository compliments the UVIS pipeline, available here: https://github.com/spacetelescope/psf.
 
 Installation
 ----------------
@@ -16,13 +16,13 @@ Installation
 
 Procedure to update and deliver the `ir_psf_mast` table to MAST
 -------------------------------------------------------------
-**(1)** Retrieve the latest focus model measurements from the ‘Focus Model Annual Summary’ page (https://www.stsci.edu/hst/instrumentation/focus-and-pointing/focus/hst-focus-model) and place them in a text file located at `/grp/hst/wfc3p/psf/main/focus-models/Focus*.txt` (Each year has its own file). If recent measurements are not available on the page, send an email to Colin Cox asking him for the latest measurements or ask the PSF team how the files can be retrieved. Only use focus model files from 2009 onward. The last time this procedure was run included up to 12/31/2019.
+**(1)** Retrieve the latest focus model measurements from the ‘Focus Model Annual Summary’ page (https://www.stsci.edu/hst/instrumentation/focus-and-pointing/focus/hst-focus-model) and place them in a text file located at `/grp/hst/wfc3p/psf/main/focus-models/Focus*.txt` (Each year has its own file). If recent measurements are not available on the page, send an email to Colin Cox asking him for the latest measurements or ask the PSF team how the files can be retrieved. Only use focus model files from 2009 onward.
 
 **(2)** Log into the `plhstins1` server if necessary.  (It is also recommended to start a `screen` session, as some of the processes take a long time and will likely run overnight.)
 
 **(3)** Change directory to the `irpsf/scripts/` directory of your local clone of the `ir_psf` repository.
 
-**(4)** Activate the `psf` `conda` environment: `source activate psf` (see `Installation` for further details)
+**(4)** Activate the `psf` `conda` environment: `source activate psf` (see `Installation` for further details).
 
 **(5)** Create a yaml file in `irpsf/scripts/` named `config.yaml`. In the file, copy and paste the following text:
 
@@ -69,7 +69,7 @@ Note that some filters may take a while to complete, especially those that are u
 
 **(7)** Execute the `make_focus_model_table.py` script: `python make_focus_model_table.py`.  This will read in the focus model text files, store the information in the `focus_model` table of the mysql database, and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/psf_logs/make_focus_model_table/`. Note since the tables are updated in a mysql database, you can sign into mysql to investigate the contents of each table, although it is not necessary: `mysql -u <username> -p` (enter appropriate username and password). `documents/mysql_cheat_sheet.pdf` contains useful commands if needed.
 
-**(8)** Execute the `make_ir_psf_table.py` script over all filters: `bash bash_scripts/run_all_ir_psf_table.bash`.  The bash script will run all the filters separately on different screens named after each filter rather than sequentially as stated earlier.  This will add new records to the `ir_psf_mast` table and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/psf_logs/make_ir_psf_table/`. Note that this takes several hours to run.
+**(8)** Execute the `make_ir_psf_table.py` script over all filters: `bash bash_scripts/run_all_ir_psf_table.bash`.  The bash script will run all the filters sequentially.  This will add new records to the `ir_psf_mast` table and will create a log file located in `/grp/hst/wfc3p/psf/main_ir/psf_logs/psf_logs/make_ir_psf_table/`. Note that this takes several hours to run.
 
 **(9)** Perform a database dump on the `ir_psf_mast` table using the following command: `mysqldump -u <username> -p --tab=/internal/data1/psf/mysqlout --fields-terminated-by=, --lines-terminated-by='\n' --no-tablespaces ir_psf ir_psf_mast`  (enter appropriate username and password). Double check that you have an existing mysql account or else the .txt file will not be exported from mysql.
 

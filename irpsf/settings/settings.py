@@ -1,7 +1,7 @@
 """Read in a yaml configuration file that contains database
 credentials and other parameters.
 
-The yaml file should be placed in psf/psf/settings/config.yaml within
+The yaml file should be placed in irpsf/scripts/config.yaml within
 the local clone of the psf repository.
 
 Authors
@@ -21,10 +21,9 @@ import os
 import yaml
 
 def get_settings():
+    """Gets the setting information that we don't want burned into the repo.
     """
-    Gets the setting information that we don't want burned into the
-    repo.
-    """
+
     with open('config.yaml', 'r') as f:
         data = yaml.load(f)
     return data
