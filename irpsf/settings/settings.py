@@ -8,12 +8,13 @@ Authors
 -------
     Alex Viana
     Clare Shanahan
+    Frederick Dauphin 2021
 
 Use
 ---
     This module is intended to be used by various modules, for example:
 
-    from psf.settings.settings import SETTINGS
+    from irpsf.settings.settings import SETTINGS
     my_connection_string = SETTINGS['connection_string']
 """
 

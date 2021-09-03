@@ -11,6 +11,7 @@ The table consists of the following columns:
 Authors
 -------
     Clare Shanahan
+    
 Use
 ---
     This script is intended to be run via the command line as such:
@@ -59,7 +60,7 @@ def get_record_dict(record):
 
 def make_focus_table_main():
     """The main controller for the make_focus_model_table module.
-    
+
     The focus information is stored in the
     /grp/hst/wfc3p/psf/main/focus-models/Focus<year> files.
     """

@@ -228,8 +228,8 @@ def parse_args():
 	return args
 
 def main_run_hst1pass_IR():
-    """The main controller for the run_hst1pass_IR module.
-    """
+	"""The main controller for the run_hst1pass_IR module.
+	"""
 
 	# Parse command line args
 	args = parse_args()
