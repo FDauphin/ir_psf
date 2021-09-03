@@ -7,6 +7,7 @@ written to <log_dir>/<module_name>/<module_name>_<YYYY-MM-DD-HH-MM>.log
 Authors
 -------
     Clare Shanahan
+    Frederick Dauphin 2021
 
 Use
 ---
