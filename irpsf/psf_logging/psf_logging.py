@@ -7,6 +7,7 @@ written to <log_dir>/<module_name>/<module_name>_<YYYY-MM-DD-HH-MM>.log
 Authors
 -------
     Clare Shanahan
+    Frederick Dauphin 2021
 
 Use
 ---
@@ -24,11 +25,18 @@ import os
 from irpsf.settings.settings import *
 
 def setup_logging(module):
-    """Set up the logging."""
-    if not os.path.isdir(os.path.join(SETTINGS['log_dir'], 'psf_logs', module)):
-    	print('Making directory {}'.format(os.path.join(SETTINGS['log_dir'], 'psf_logs', module)))
-    	os.makedirs(os.path.join(SETTINGS['log_dir'], 'psf_logs', module))
-    log_file = os.path.join(SETTINGS['log_dir'], 'psf_logs', module,
+    """Set up the logging.
+
+    Parameters
+    ----------
+    module : str
+        Name of the module.
+    """
+
+    if not os.path.isdir(os.path.join(SETTINGS['log_dir'], module)):
+    	print('Making directory {}'.format(os.path.join(SETTINGS['log_dir'], module)))
+    	os.makedirs(os.path.join(SETTINGS['log_dir'], module))
+    log_file = os.path.join(SETTINGS['log_dir'], module,
         module + '_' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M') + '.log')
     logging.basicConfig(filename=log_file,
                         format='%(asctime)s %(levelname)s: %(message)s',

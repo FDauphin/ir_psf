@@ -1,0 +1,15 @@
+screen -S F105W python run_hst1pass_IR.py -filter F105W
+screen -S F110W python run_hst1pass_IR.py -filter F110W
+screen -S F125W python run_hst1pass_IR.py -filter F125W
+screen -S F140W python run_hst1pass_IR.py -filter F140W
+screen -S F160W python run_hst1pass_IR.py -filter F160W
+screen -S F098M python run_hst1pass_IR.py -filter F098M
+screen -S F127M python run_hst1pass_IR.py -filter F127M
+screen -S F139M python run_hst1pass_IR.py -filter F139M
+screen -S F153M python run_hst1pass_IR.py -filter F153M
+screen -S F126N python run_hst1pass_IR.py -filter F126N
+screen -S F128N python run_hst1pass_IR.py -filter F128N
+screen -S F130N python run_hst1pass_IR.py -filter F130N
+screen -S F132N python run_hst1pass_IR.py -filter F132N
+screen -S F164N python run_hst1pass_IR.py -filter F164N
+screen -S F167N python run_hst1pass_IR.py -filter F167N

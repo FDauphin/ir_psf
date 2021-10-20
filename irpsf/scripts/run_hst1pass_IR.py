@@ -9,20 +9,19 @@ QL database but not in the psf database.
 
 The program hst1pass.e outputs two files:
 
-(1) <filename>.stardb_xym has a list of detected stars, with 13 columns.
+(1) <filename>.stardb_xym has a list of detected stars, with 12 columns.
 	1) xfit (x position)
 	2) yfit (y position)
 	3) mfit (instrumental magnitude)
 	4) qfit (quality of fit, the absolute fractional residual, 0 = perfect fit)
-	5) zfit  --- the fitted flux; 10**(-mfit/2.5)
-	6) sfit (the fitted sky)
-	7) cobs (the central pixel value)
+	5) zfit  --- the fitted flux; 10**(-mfit/2.5) aka psf_flux
+	6) sfit (the fitted sky) aka sky
+	7) cobs (the central pixel value) aka pixc
 	8) cexp (the fraction of light expected in the central pixel)
-	9) aobs (the flux in the "a" pixels)
-	10) aexp (the fraction of light expected in the "a" pixels)
-	11) bobs (the flux in the "b" pixels)
-	12) bexp (the fraction of light expected in the "b" pixels)
-	13) N + star number
+	9) N + star number
+	10) sat (saturation)
+	11) g1
+	12) g2
 
 (2) <filename>.stardb_ras, 11x11 pixel cutouts around the brigtest pixel of
 	each detected source (121 lines for each sources). It has 9 columns.
@@ -31,11 +30,11 @@ The program hst1pass.e outputs two files:
 	3) p, pixel value
 	4) xfit, the fitted x pixel location
 	5) yfit, the fitted y pixel location
-	4) zfit, the fitted flux for the star
-	5) sfit, the fitted sky value
-	6) fexp, the fraction of light expected to be in this pixel
+	6) zfit, the fitted flux for the star
+	7) sfit, the fitted sky value
+	8) fexp, the fraction of light expected to be in this pixel
 		 (fobs, the observed fraction will just be (p-s)/z
-	7) N + star number
+	9) N + star number
 
 """
 import glob
@@ -53,6 +52,19 @@ from pyql.database.ql_database_interface import IR_flt_1
 from pyql.database.ql_database_interface import session as ql_session
 
 def filter_psf_model_map(filt):
+	"""Determine which PSF model to use.
+
+	Parameters
+	----------
+	filt : str
+		The filter being processed.
+
+	Returns
+	-------
+	filter_model : str
+		The PSF model for the designated filter.
+	"""
+
 	filter_model_map = {'F105W' : 'PSFSTD_WFC3IR_F105W.fits',
 						'F125W' : 'PSFSTD_WFC3IR_F125W.fits',
 						'F098M' : 'PSFSTD_WFC3IR_F105W.fits',
@@ -69,18 +81,21 @@ def filter_psf_model_map(filt):
 						'F110W' : 'PSFSTD_WFC3IR_F110W.fits',
 						'F160W' : 'PSFSTD_WFC3IR_F160W.fits'}
 
-	return filter_model_map[filt]
+	filter_model = filter_model_map[filt]
+
+	return filter_model
 
 def get_psf_records():
 	"""Return a list containing filenames that already exist as raw
-	outputs in the psf filesystem
+	outputs in the psf filesystem.
 
 	Returns
 	-------
 	psf_rootnames : list
 		A list containing all rootnames of PSF files that already
-		exist as raw outputs in the psf filesystem
+		exist as raw outputs in the psf filesystem.
 	"""
+
 	psf_files = glob.glob(os.path.join(SETTINGS['output_dir'], '*/*ras'))
 	psf_rootnames = [os.path.basename(item).split('_')[0][0:8] for item in psf_files]
 
@@ -147,12 +162,12 @@ def get_job_list(new_records):
 
 	Each item in the job_list will be a call to hst1pass.e with
 	the appropriate parameters to process an image, beginning with a command
-	to cd into the correct output directory. (FMIN could be lowered to 2500)
+	to cd into the correct output directory (FMIN could be lowered to 2500).
 
 	Parameters
 	----------
 	new_records : dict
-		A list of tuples, containing (<input file path>, <filter>)
+		A list of tuples, containing (<input file path>, <filter>).
 
 	Returns
 	-------
@@ -160,6 +175,7 @@ def get_job_list(new_records):
 		A list of strings containing calls to the img2psf_wfc3uv.F
 		routine with appropriate parameters.
 	"""
+
 	job_list = []
 	for record in new_records:
 		filt, rootname, path = record
@@ -185,6 +201,7 @@ def run_process(cmd):
 	subprocess.call(cmd, shell=True) : obj
 		The subprocess call.
 	"""
+
 	logging.info('Beginning to process {}'.format(cmd.split()[-1]))
 
 	return subprocess.call(cmd, shell=True)
@@ -195,7 +212,7 @@ def parse_args():
 	Returns
 	-------
 	args : obj
-		An agparse object containing all of the added arguments
+		An agparse object containing all of the added arguments.
 	"""
 
 	parser = argparse.ArgumentParser(
@@ -211,6 +228,8 @@ def parse_args():
 	return args
 
 def main_run_hst1pass_IR():
+	"""The main controller for the run_hst1pass_IR module.
+	"""
 
 	# Parse command line args
 	args = parse_args()

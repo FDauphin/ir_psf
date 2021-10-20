@@ -80,7 +80,7 @@ def loadConnection(connection_string):
     base : base object
         Provides a base class for declarative class definitions.
     engine : engine object
-        Prov
+        Provides a source of database connectivity and behavior.
     """
 
     engine = create_engine(connection_string, echo=False, pool_timeout=259200)
@@ -119,7 +119,7 @@ class PSFTableMAST(Base):
 
 
 class FocusModel(Base):
-    """ORM for the table storing individual focus measurement information"""
+    """ORM for the table storing individual focus measurement information."""
 
     __tablename__ = 'focus_model'
     id = Column(Integer(), primary_key=True)
