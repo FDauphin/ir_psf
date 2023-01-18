@@ -15,7 +15,7 @@ Installation
 7. Install the `irpsf` package by running `python setup.py develop` or `python setup.py install` (`develop` is recommended).
 
 Procedure to update and deliver the `ir_psf_mast` table to MAST
--------------------------------------------------------------
+---------------------------------------------------------------
 **(1)** Retrieve the latest focus model measurements from the ‘Focus Model Annual Summary’ page (https://www.stsci.edu/hst/instrumentation/focus-and-pointing/focus/hst-focus-model) and place them in a text file located at `/grp/hst/wfc3p/psf/main/focus-models/Focus*.txt` (Each year has its own file). If recent measurements are not available on the page, send an email to Colin Cox asking him for the latest measurements or ask the PSF team how the files can be retrieved. Only use focus model files from 2009 onward.
 
 **(2)** Log into the `plhstins1` server if necessary.  (It is also recommended to start a `screen` session, as some of the processes take a long time and will likely run overnight.)
