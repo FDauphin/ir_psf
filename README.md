@@ -1,5 +1,7 @@
-WFC3 IR PSF Project
+WFC3 IR PSF Project **(DEPRECATED)**
 ---------------------
+
+**WARNING: THIS LIBRARY IS DEPRECATED. THE PSF PYTHON LIBRARIES WERE ORIGINALLY SEPARATE FOR WFC3/UVIS, WFC3/IR, AND WFPC2. AFTER JAY ANDERSON'S OFFICIAL RELEASE OF HST1PASS, A FORTRAN PROGRAM TO MEASURE ASTROMETRY/PHOTOMETRY OF HST STARS, THE LIBRARIES HAVE BEEN COMBINED INTO ONE LIBRARY UNDER THE HOOD OF HST1PASS. EVERYTHING IN THIS BRANCH IS OUT OF DATE AND SHOULD ONLY BE REFERENCED FOR HISTORICAL REASONS.**
 
 This repository contains the software to build and analyze the HST WFC3 PSF database. This pipeline is used to find, catalog, and analyze WFC3 IR PSF's.  Below are instructions on how to install the `irpsf` package and its dependencies as well as how to update the PSF database and deliver appropriate information to MAST. The timescale of the installation and procedure are around a day and a week, respectively.  This may increase or decrease due to computer skills, technical complications, and/or data size. This repository compliments the UVIS pipeline, available here: https://github.com/spacetelescope/psf.
 
