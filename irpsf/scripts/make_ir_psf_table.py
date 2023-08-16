@@ -168,7 +168,7 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 
 
 def get_files_metadata(rootnames):
-    """Retrieve metadata for a rootname from QL.
+	"""Retrieve metadata for a rootname from QL.
 
     Parameters
     ----------
@@ -200,11 +200,11 @@ def get_files_metadata(rootnames):
 
 	metadata = (ql_dirs, midexps, filterss, apertures, exptimes, sun_angs, fgs_locks)
 
-    return metadata
+	return metadata
 
 
 def get_ra_dec_wcs(file_path, x, y):
-    """Calculate the right ascension and declination from an image.
+	"""Calculate the right ascension and declination from an image.
 
     Parameters
     ----------
@@ -315,7 +315,7 @@ def get_focus_parameters(midexp):
 
 
 def main_make_ir_psf_table(filt='all'):
-    """The main controller for the make_ir_psf_table module.
+	"""The main controller for the make_ir_psf_table module.
 
     Parameters
     ----------
