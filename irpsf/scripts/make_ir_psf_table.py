@@ -58,7 +58,7 @@ def parse_args():
     return args
 
 def get_new_files_to_ingest(filt):
-	"""For a given filter, checks files in filesystem against files already in database.
+    """For a given filter, checks files in filesystem against files already in database.
 
     Returns a list of rootnames of files in filesystem but NOT in database, i.e. new files, to process. Next, checks if files are out of the proprietary period.
 
@@ -168,7 +168,7 @@ def parse_xym_file(xym_file_path, include_saturated_stars=False):
 
 
 def get_files_metadata(rootnames):
-	"""Retrieve metadata for a rootname from QL.
+    """Retrieve metadata for a rootname from QL.
 
     Parameters
     ----------
@@ -204,7 +204,7 @@ def get_files_metadata(rootnames):
 
 
 def get_ra_dec_wcs(file_path, x, y):
-	"""Calculate the right ascension and declination from an image.
+    """Calculate the right ascension and declination from an image.
 
     Parameters
     ----------
@@ -315,7 +315,7 @@ def get_focus_parameters(midexp):
 
 
 def main_make_ir_psf_table(filt='all'):
-	"""The main controller for the make_ir_psf_table module.
+    """The main controller for the make_ir_psf_table module.
 
     Parameters
     ----------
